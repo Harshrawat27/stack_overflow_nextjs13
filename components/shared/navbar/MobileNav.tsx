@@ -14,7 +14,6 @@ import { SignedOut } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { sidebarLinks } from "@/constants";
 import { usePathname } from "next/navigation";
-import path from "path";
 
 const NavContent = () => {
   const pathname = usePathname();
@@ -110,4 +109,4 @@ const MobileNav = () => {
   );
 };
 
-export default MobileNav;
+export { MobileNav, NavContent };
