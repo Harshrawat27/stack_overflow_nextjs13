@@ -1,18 +1,18 @@
-"use server";
+'use server';
 
-import Answer from "@/database/answer.model";
-import { connectToDatabase } from "../mongoose";
+import Answer from '@/database/answer.model';
+import { connectToDatabase } from '../mongoose';
 
 import {
   AnswerVoteParams,
   CreateAnswerParams,
   DeleteAnswerParams,
   GetAnswersParams,
-} from "./shared.types";
-import { revalidatePath } from "next/cache";
-import Question from "@/database/question.model";
-import Interaction from "@/database/interaction.model";
-import User from "@/database/user.model";
+} from './shared.types';
+import { revalidatePath } from 'next/cache';
+import Question from '@/database/question.model';
+import Interaction from '@/database/interaction.model';
+import User from '@/database/user.model';
 
 export async function createAnswer(params: CreateAnswerParams) {
   try {
@@ -34,7 +34,7 @@ export async function createAnswer(params: CreateAnswerParams) {
       user: author,
       question,
       answer: newAnswer._id,
-      action: "answer",
+      action: 'answer',
       tags: questionObject.tags,
     });
     // Increment author's reputation by 10 points for answering a question
@@ -57,16 +57,16 @@ export async function getAnswers(params: GetAnswersParams) {
     let sortOptions = {};
 
     switch (sortBy) {
-      case "highestUpvotes":
+      case 'highestUpvotes':
         sortOptions = { upvotes: -1 };
         break;
-      case "lowestUpvotes":
+      case 'lowestUpvotes':
         sortOptions = { upvotes: 1 };
         break;
-      case "recent":
+      case 'recent':
         sortOptions = { createdAt: -1 };
         break;
-      case "old":
+      case 'old':
         sortOptions = { createdAt: 1 };
         break;
       default:
@@ -74,7 +74,7 @@ export async function getAnswers(params: GetAnswersParams) {
     }
 
     const answers = await Answer.find({ question: questionId })
-      .populate("author", "_id clerkId name picture")
+      .populate('author', '_id clerkId name picture')
       .sort(sortOptions)
       .skip(skipAmount)
       .limit(pageSize);
@@ -116,7 +116,7 @@ export async function upvoteAnswer(param: AnswerVoteParams) {
     });
 
     if (!answer) {
-      throw new Error("Answer not found");
+      throw new Error('Answer not found');
     }
 
     // Increment author's reputation by 5 points for asking a question
@@ -158,7 +158,7 @@ export async function downvoteAnswer(params: AnswerVoteParams) {
     });
 
     if (!answer) {
-      throw new Error("Answer not found");
+      throw new Error('Answer not found');
     }
 
     // Increment author's reputation by 5 points for asking a question
@@ -185,7 +185,7 @@ export async function deleteAnswer(params: DeleteAnswerParams) {
     const answer = await Answer.findById(answerId);
 
     if (!answer) {
-      throw new Error("Answer not found");
+      throw new Error('Answer not found');
     }
 
     await answer.deleteOne({ _id: answerId });
