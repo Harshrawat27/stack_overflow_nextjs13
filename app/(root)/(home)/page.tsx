@@ -2,15 +2,51 @@ import QuestionCards from "@/components/cards/QuestionCards";
 import HomeFilters from "@/components/home/HomeFilters";
 import Filter from "@/components/shared/Filter";
 import NoResult from "@/components/shared/NoResult";
+import Pagination from "@/components/shared/Pagination";
 import LocalSearchbar from "@/components/shared/search/LocalSearchbar";
 import { Button } from "@/components/ui/button";
 import { HomePageFilters } from "@/constants/filter";
-import { getQuestions } from "@/lib/actions/question.action";
+import {
+  getQuestions,
+  getRecommendedQuestions,
+} from "@/lib/actions/question.action";
+import { SearchParamsProps } from "@/types";
+import { auth } from "@clerk/nextjs";
 import Link from "next/link";
+// import Loading from "./loading";
 
-export default async function Home() {
-  const result = await getQuestions({});
+export default async function Home({ searchParams }: SearchParamsProps) {
+  const { userId } = auth();
 
+  let result;
+
+  if (searchParams?.filter === "recommended") {
+    if (userId) {
+      result = await getRecommendedQuestions({
+        userId,
+        searchQuery: searchParams.q,
+        page: searchParams.page ? +searchParams.page : 1,
+      });
+    } else {
+      result = {
+        questions: [],
+        isNext: false,
+      };
+    }
+  } else {
+    result = await getQuestions({
+      searchQuery: searchParams.q,
+      filter: searchParams.filter,
+      page: searchParams.page ? +searchParams.page : 1,
+    });
+  }
+
+  // const isLoading = true;
+
+  // if (isLoading) {
+  //   return <Loading />;
+  // }
+  // Fetch recommended questions
   return (
     <div>
       <div className="flex justify-between">
@@ -30,6 +66,7 @@ export default async function Home() {
           otherClasses="flex-1"
           iconPosition="left"
         />
+
         <Filter
           filters={HomePageFilters}
           otherClasses="min-h-[56px] sm:min-w-[170px]"
@@ -64,6 +101,12 @@ export default async function Home() {
             linkText="Ask a Question"
           />
         )}
+      </div>
+      <div className="mt-10">
+        <Pagination
+          pageNumber={searchParams?.page ? +searchParams.page : 1}
+          isNext={result.isNext}
+        />
       </div>
     </div>
   );
